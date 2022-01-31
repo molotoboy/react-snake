@@ -1,3 +1,58 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: rgb(157, 224, 153);
+  position: relative;
+}
+.start {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 2rem;
+  position: absolute;
+  border: 5px solid black;
+  background: rgb(140, 146, 139);
+  border-radius: 1rem;
+  padding: 1rem;
+  outline: none;
+}
+
+.start:hover {
+  border: 5px solid black;
+  background: white;
+}
+
+.game-over {
+  font-family: 'Press Start 2P', cursive;
+  position: absolute;
+  font-size: 4rem;
+  margin-bottom: 18rem;
+}
+
+.points {
+  font-family: 'Press Start 2P', cursive;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+}
+
+.finished-game {
+  font-family: 'Press Start 2P', cursive;
+  position: absolute;
+  top: 60px;
+  font-size: 3rem;
+  color: red;
+  text-decoration: underline;
+}
+
 .App {
   text-align: center;
 }
