@@ -3,13 +3,11 @@ import './App.css';
 import { useInterval } from './hooks/useInterval';
 import {
   CANVAS_SIZE,
-  APPLE_START,
   DIRECTIONS,
   SCALE,
   SNAKE_START,
-  INITIAL_SPEED,
+  INITIAL_DELAY,
   DIRECTION_START,
-  MAX_POINTS,
 } from './constants';
 
 export type Coords = {
@@ -24,12 +22,14 @@ function App() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [hasFinishedGame, setHasFinishedGame] = useState<boolean>(false);
-  const [apple, setApple] = useState<Coords>(APPLE_START);
-  const [lastSpeed, setLastSpeed] = useState<number | null>(200);
-  const [speed, setSpeed] = useState<number | null>(null);
+  const [apple, setApple] = useState<Coords | null>(null);
+  const [lastDelay, setLastDelay] = useState<number | null>(200);
+  const [delay, setDelay] = useState<number | null>(null);
   const [snake, setSnake] = useState<Array<Coords>>(SNAKE_START);
-
   const [direction, setDirection] = useState<Coords>(DIRECTION_START);
+
+  const [appleScore, setAppleScore] = useState<number | null>(null);
+  const [snakeTail, setSnakeTail] = useState<Array<number>>([]);
 
   // Start Reset
   const startGame = () => {
@@ -37,17 +37,21 @@ function App() {
     setPoints(0);
     setIsPlaying(true);
     setIsGameOver(false);
-    setSnake(SNAKE_START);
-    setApple(APPLE_START);
+    setSnake([
+      { x: 9, y: 14 },
+      { x: 9, y: 15 },
+    ]);
+    createApple(snake);
     setDirection(DIRECTION_START);
-    setSpeed(INITIAL_SPEED);
-    setLastSpeed(INITIAL_SPEED);
+    setDelay(INITIAL_DELAY);
+    setLastDelay(INITIAL_DELAY);
+    setSnakeTail([50, 60]);
     controlRef.current?.focus();
   };
 
   // End
   const endGame = () => {
-    setSpeed(null);
+    setDelay(null);
     setIsPlaying(false);
     setIsGameOver(true);
   };
@@ -70,7 +74,7 @@ function App() {
   };
 
   const checkAppleCollision = (head: Coords) => {
-    return head.x === apple.x && head.y === apple.y;
+    return head.x === apple!.x && head.y === apple!.y;
   };
 
   const checkCollision = (head: Coords, body: Coords[] = snake) => {
@@ -87,46 +91,59 @@ function App() {
     return false;
   };
 
-  const createApple = () => {
+  const generateApple = () => {
     return {
       x: Math.floor((Math.random() * CANVAS_SIZE.x) / SCALE),
       y: Math.floor((Math.random() * CANVAS_SIZE.y) / SCALE),
     };
   };
 
+  const createApple = (snake: Coords[]) => {
+    let newApple;
+    do {
+      newApple = generateApple();
+    } while (checkCollision(newApple, snake));
+    setApple(newApple);
+    setAppleScore(100);
+  };
+
   // Update
-  const gameUpdate = () => {
+  const updateGame = () => {
     const head = { ...snake[0] };
     const newHead = { x: head.x + direction.x, y: head.y + direction.y };
-
     // console.log('newHead ', newHead);
     if (checkCollision(newHead)) endGame();
+
     const newSnake = [newHead, ...snake];
     if (checkAppleCollision(newHead)) {
-      setPoints(points + 1);
-      if (points === MAX_POINTS) {
-        setHasFinishedGame(true);
-        endGame();
-      }
-      let newApple;
-      do {
-        newApple = createApple();
-      } while (checkCollision(newApple, newSnake));
+      setPoints(points + appleScore!);
+      setSnakeTail([appleScore!, ...snakeTail]);
 
-      setApple(newApple);
-      setSpeed(Math.floor(speed! * 0.9));
+      if (appleScore! > 50) {
+        setDelay(Math.floor(delay! * 0.95));
+        console.log('fresh apple -', appleScore);
+      } else {
+        setDelay(Math.floor(delay! * 1.05));
+        console.log('rotten apple -', appleScore);
+      }
+      createApple(newSnake);
     } else {
       newSnake.splice(-1);
+      if (appleScore! > 5) {
+        setAppleScore(appleScore! - 2);
+      } else {
+        createApple(newSnake);
+      }
     }
     setSnake(newSnake);
   };
 
   useEffect(() => {
-    if (speed) {
-      setLastSpeed(speed);
-      console.log('speed ', speed);
+    if (delay) {
+      setLastDelay(delay);
+      console.log('delay ', delay);
     }
-  }, [speed]);
+  }, [delay]);
 
   // Draw
   useEffect(() => {
@@ -135,15 +152,23 @@ function App() {
     context.setTransform(SCALE, 0, 0, SCALE, 0, 0);
     context.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
 
-    context.fillStyle = 'green';
-    snake.forEach(({ x, y }) => context.fillRect(x, y, 1, 1));
+    for (let i = 0; i < snake.length; ++i) {
+      const { x, y } = snake[i];
+      const c = snakeTail[i];
 
-    context.fillStyle = 'red';
-    context.fillRect(apple.x, apple.y, 1, 1);
-  }, [snake, apple]);
+      context.fillStyle = 'rgb(0,' + Math.floor((255 / 100) * c) + ',0)';
+      context.fillRect(x, y, 1, 1);
+    }
+
+    if (appleScore) {
+      context.fillStyle =
+        'rgb(' + Math.floor((255 / 100) * appleScore) + ',0,0)';
+      context.fillRect(apple!.x, apple!.y, 1, 1);
+    }
+  }, [snake, apple, appleScore, snakeTail]);
 
   // Next Update
-  useInterval(() => gameUpdate(), speed);
+  useInterval(() => updateGame(), delay);
 
   return (
     <div className="wrapper">
@@ -157,8 +182,8 @@ function App() {
         <canvas
           style={
             isGameOver
-              ? { border: '1px solid black', opacity: 0.5 }
-              : { border: '1px solid black' }
+              ? { border: '5px solid black', opacity: 0.5 }
+              : { border: '5px solid black' }
           }
           ref={canvasRef}
           width={CANVAS_SIZE.x}
@@ -174,7 +199,7 @@ function App() {
           </button>
         )}
         <div className="points">
-          {points} ({lastSpeed})
+          {points} ({lastDelay})
         </div>
       </div>
     </div>
