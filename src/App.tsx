@@ -6,8 +6,9 @@ import {
   DIRECTIONS,
   SCALE,
   SNAKE_START,
-  INITIAL_DELAY,
+  DELAY_START,
   DIRECTION_START,
+  SNAKE_BODY_START,
 } from './constants';
 
 export type Coords = {
@@ -25,11 +26,11 @@ function App() {
   const [apple, setApple] = useState<Coords | null>(null);
   const [lastDelay, setLastDelay] = useState<number | null>(200);
   const [delay, setDelay] = useState<number | null>(null);
-  const [snake, setSnake] = useState<Array<Coords>>(SNAKE_START);
+  const [snake, setSnake] = useState<Array<Coords>>([]);
   const [direction, setDirection] = useState<Coords>(DIRECTION_START);
 
   const [appleScore, setAppleScore] = useState<number | null>(null);
-  const [snakeTail, setSnakeTail] = useState<Array<number>>([]);
+  const [snakeBody, setSnakeBody] = useState<Array<number>>([]);
 
   // Start Reset
   const startGame = () => {
@@ -37,15 +38,12 @@ function App() {
     setPoints(0);
     setIsPlaying(true);
     setIsGameOver(false);
-    setSnake([
-      { x: 9, y: 14 },
-      { x: 9, y: 15 },
-    ]);
+    setSnake(SNAKE_START);
     createApple(snake);
     setDirection(DIRECTION_START);
-    setDelay(INITIAL_DELAY);
-    setLastDelay(INITIAL_DELAY);
-    setSnakeTail([50, 60]);
+    setDelay(DELAY_START);
+    setLastDelay(DELAY_START);
+    setSnakeBody(SNAKE_BODY_START);
     controlRef.current?.focus();
   };
 
@@ -117,7 +115,7 @@ function App() {
     const newSnake = [newHead, ...snake];
     if (checkAppleCollision(newHead)) {
       setPoints(points + appleScore!);
-      setSnakeTail([appleScore!, ...snakeTail]);
+      setSnakeBody([appleScore!, ...snakeBody]);
 
       if (appleScore! > 50) {
         setDelay(Math.floor(delay! * 0.95));
@@ -154,7 +152,7 @@ function App() {
 
     for (let i = 0; i < snake.length; ++i) {
       const { x, y } = snake[i];
-      const c = snakeTail[i];
+      const c = snakeBody[i];
 
       context.fillStyle = 'rgb(0,' + Math.floor((255 / 100) * c) + ',0)';
       context.fillRect(x, y, 1, 1);
@@ -165,7 +163,7 @@ function App() {
         'rgb(' + Math.floor((255 / 100) * appleScore) + ',0,0)';
       context.fillRect(apple!.x, apple!.y, 1, 1);
     }
-  }, [snake, apple, appleScore, snakeTail]);
+  }, [snake, apple, appleScore, snakeBody]);
 
   // Next Update
   useInterval(() => updateGame(), delay);
