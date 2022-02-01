@@ -206,7 +206,7 @@ function App() {
         <canvas
           style={
             isGameOver
-              ? { border: '5px solid black', opacity: 0.5 }
+              ? { border: '5px solid black', opacity: 0.3 }
               : { border: '5px solid black' }
           }
           ref={canvasRef}
