@@ -96,10 +96,10 @@ function App() {
 
   const checkCollision = (head: Coords, body: Coords[] = snake) => {
     if (
-      head.x * SCALE >= CANVAS_SIZE.x - SCALE ||
-      head.x <= 0 ||
-      head.y * SCALE >= CANVAS_SIZE.y - SCALE ||
-      head.y <= 0
+      head.x * SCALE > CANVAS_SIZE.x - SCALE ||
+      head.x < 0 ||
+      head.y * SCALE > CANVAS_SIZE.y - SCALE ||
+      head.y < 0
     )
       return true;
     for (const segment of body) {
