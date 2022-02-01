@@ -8,7 +8,8 @@ import {
   SNAKE_START,
   DELAY_START,
   DIRECTION_START,
-  SNAKE_BODY_START,
+  SNAKE_SKIN_START,
+  SNAKE_BEST_SCORE,
 } from './constants';
 
 export type Coords = {
@@ -19,23 +20,27 @@ export type Coords = {
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controlRef = useRef<HTMLDivElement>(null);
-  const [points, setPoints] = useState<number>(0);
+
+  const [score, setScore] = useState<number>(0);
+  const [bestScore, setBestScore] = useState<number>(loadBestScore());
+  const [isBestScore, setIsBestScore] = useState<boolean>(false);
+
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
-  const [hasFinishedGame, setHasFinishedGame] = useState<boolean>(false);
+
   const [apple, setApple] = useState<Coords | null>(null);
-  const [lastDelay, setLastDelay] = useState<number | null>(200);
+  const [lastDelay, setLastDelay] = useState<number | null>(DELAY_START);
   const [delay, setDelay] = useState<number | null>(null);
   const [snake, setSnake] = useState<Array<Coords>>([]);
   const [direction, setDirection] = useState<Coords>(DIRECTION_START);
 
   const [appleScore, setAppleScore] = useState<number | null>(null);
-  const [snakeBody, setSnakeBody] = useState<Array<number>>([]);
+  const [snakeSkin, setSnakeSkin] = useState<Array<number>>([]);
 
   // Start Reset
-  const startGame = () => {
-    setHasFinishedGame(false);
-    setPoints(0);
+  function startGame() {
+    setScore(0);
+    setIsBestScore(false);
     setIsPlaying(true);
     setIsGameOver(false);
     setSnake(SNAKE_START);
@@ -43,16 +48,30 @@ function App() {
     setDirection(DIRECTION_START);
     setDelay(DELAY_START);
     setLastDelay(DELAY_START);
-    setSnakeBody(SNAKE_BODY_START);
+    setSnakeSkin(SNAKE_SKIN_START);
     controlRef.current?.focus();
-  };
+  }
 
   // End
-  const endGame = () => {
+  function endGame() {
     setDelay(null);
     setIsPlaying(false);
     setIsGameOver(true);
-  };
+
+    if (score > bestScore) {
+      setBestScore(score);
+      saveBestScore(score);
+      setIsBestScore(true);
+    }
+  }
+
+  function loadBestScore() {
+    return parseInt(localStorage.getItem(SNAKE_BEST_SCORE) || '0');
+  }
+
+  function saveBestScore(score: number) {
+    localStorage.setItem(SNAKE_BEST_SCORE, score.toString());
+  }
 
   const moveSnake = (event: React.KeyboardEvent) => {
     event.preventDefault();
@@ -114,8 +133,8 @@ function App() {
 
     const newSnake = [newHead, ...snake];
     if (checkAppleCollision(newHead)) {
-      setPoints(points + appleScore!);
-      setSnakeBody([appleScore!, ...snakeBody]);
+      setScore(score + appleScore!);
+      setSnakeSkin([appleScore!, ...snakeSkin]);
 
       if (appleScore! > 50) {
         setDelay(Math.floor(delay! * 0.95));
@@ -152,7 +171,7 @@ function App() {
 
     for (let i = 0; i < snake.length; ++i) {
       const { x, y } = snake[i];
-      const c = snakeBody[i];
+      const c = snakeSkin[i];
 
       context.fillStyle = 'rgb(0,' + Math.floor((255 / 100) * c) + ',0)';
       context.fillRect(x, y, 1, 1);
@@ -163,7 +182,8 @@ function App() {
         'rgb(' + Math.floor((255 / 100) * appleScore) + ',0,0)';
       context.fillRect(apple!.x, apple!.y, 1, 1);
     }
-  }, [snake, apple, appleScore, snakeBody]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snake]);
 
   // Next Update
   useInterval(() => updateGame(), delay);
@@ -177,6 +197,12 @@ function App() {
         role="button"
         onKeyDown={(event: React.KeyboardEvent) => moveSnake(event)}
       >
+        <div className="points">
+          <div>Best:{bestScore}</div>
+          <div>
+            {score}({lastDelay})
+          </div>
+        </div>
         <canvas
           style={
             isGameOver
@@ -188,17 +214,12 @@ function App() {
           height={CANVAS_SIZE.y}
         />
         {isGameOver && <div className="game-over">Game Over</div>}
-        {hasFinishedGame && (
-          <div className="finished-game">Congratulations!!</div>
-        )}
+        {isBestScore && <div className="finished-game">New Best Score!</div>}
         {!isPlaying && (
           <button className="start" onClick={startGame}>
             Start
           </button>
         )}
-        <div className="points">
-          {points} ({lastDelay})
-        </div>
       </div>
     </div>
   );

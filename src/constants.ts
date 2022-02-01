@@ -3,7 +3,7 @@ export const SNAKE_START = [
   { x: 9, y: 14 },
   { x: 9, y: 15 },
 ];
-export const SNAKE_BODY_START = [70, 60];
+export const SNAKE_SKIN_START = [70, 60];
 export const DIRECTION_START = { x: 0, y: -1 };
 export const SCALE = 40;
 export const DELAY_START = 400;
@@ -13,3 +13,4 @@ export const DIRECTIONS = {
   ArrowLeft: { x: -1, y: 0 },
   ArrowRight: { x: 1, y: 0 },
 };
+export const SNAKE_BEST_SCORE = 'SNAKE_BEST_SCORE';
