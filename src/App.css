@@ -38,19 +38,22 @@
 
 .points {
   font-family: 'Press Start 2P', cursive;
-  position: absolute;
   top: 1rem;
   right: 1rem;
   font-size: 2rem;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .finished-game {
   font-family: 'Press Start 2P', cursive;
   position: absolute;
-  top: 60px;
+  top: 8rem;
   font-size: 3rem;
-  color: red;
-  text-decoration: underline;
+  color: rgb(0, 0, 0);
 }
 
 .App {
