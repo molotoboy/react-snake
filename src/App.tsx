@@ -76,7 +76,7 @@ function App() {
   const moveSnake = (event: React.KeyboardEvent) => {
     event.preventDefault();
 
-    // console.log(event.code);
+    // console.log(event);
     const { code } = event;
     if (
       code === 'ArrowUp' ||
@@ -87,7 +87,7 @@ function App() {
       if (direction.x + DIRECTIONS[code].x && direction.y + DIRECTIONS[code].y)
         setDirection(DIRECTIONS[code]);
     }
-    if (code === 'Space') startGame();
+    if (code === 'Space' || code === 'Enter') startGame();
   };
 
   const checkAppleCollision = (head: Coords) => {
