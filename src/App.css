@@ -17,16 +17,18 @@
   font-family: 'Press Start 2P', cursive;
   font-size: 2rem;
   position: absolute;
-  border: 5px solid black;
-  background: rgb(140, 146, 139);
+  border: 3px solid #000;
+  background: #fff;
   border-radius: 1rem;
   padding: 1rem;
   outline: none;
+  color: #000;
 }
 
 .start:hover {
-  border: 5px solid black;
-  background: white;
+  border: 3px solid #fff;
+  background: #000;
+  color: #fff;
 }
 
 .game-over {
@@ -34,6 +36,9 @@
   position: absolute;
   font-size: 4rem;
   margin-bottom: 18rem;
+  color: #fff;
+  text-shadow: -3px -3px 0 #000, 0 -3px 0 #000, 3px -3px 0 #000, 3px 0 0 #000,
+    3px 3px 0 #000, 0 3px 0 #000, -3px 3px 0 #000, -3px 0 0 #000;
 }
 
 .points {
@@ -54,6 +59,8 @@
   top: 8rem;
   font-size: 3rem;
   color: rgb(0, 0, 0);
+  text-shadow: -3px -3px 0 #fff, 0 -3px 0 #fff, 3px -3px 0 #fff, 3px 0 0 #fff,
+    3px 3px 0 #fff, 0 3px 0 #fff, -3px 3px 0 #fff, -3px 0 0 #fff;
 }
 
 .App {
