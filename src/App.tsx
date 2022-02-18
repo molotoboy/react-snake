@@ -54,6 +54,8 @@ function App() {
 
   // End
   function endGame() {
+    setSnakeSkin([0, ...snakeSkin.slice(1)]);
+    setSnake([...snake]);
     setDelay(null);
     setIsPlaying(false);
     setIsGameOver(true);
@@ -96,9 +98,9 @@ function App() {
 
   const checkCollision = (head: Coords, body: Coords[] = snake) => {
     if (
-      head.x * SCALE > CANVAS_SIZE.x - SCALE ||
+      head.x * SCALE >= CANVAS_SIZE.x ||
       head.x < 0 ||
-      head.y * SCALE > CANVAS_SIZE.y - SCALE ||
+      head.y * SCALE >= CANVAS_SIZE.y ||
       head.y < 0
     )
       return true;
@@ -129,7 +131,7 @@ function App() {
     const head = { ...snake[0] };
     const newHead = { x: head.x + direction.x, y: head.y + direction.y };
     // console.log('newHead ', newHead);
-    if (checkCollision(newHead)) endGame();
+    if (checkCollision(newHead)) return endGame();
 
     const newSnake = [newHead, ...snake];
     if (checkAppleCollision(newHead)) {
