@@ -34,7 +34,7 @@ function App() {
   const [snake, setSnake] = useState<Array<Coords>>([]);
   const [direction, setDirection] = useState<Coords>(DIRECTION_START);
 
-  const [appleScore, setAppleScore] = useState<number | null>(null);
+  const [appleScore, setAppleScore] = useState<number>(0);
   const [snakeSkin, setSnakeSkin] = useState<Array<number>>([]);
 
   // Start Reset
@@ -118,7 +118,7 @@ function App() {
   };
 
   const createApple = (snake: Coords[]) => {
-    let newApple;
+    let newApple: Coords;
     do {
       newApple = generateApple();
     } while (checkCollision(newApple, snake));
@@ -135,10 +135,10 @@ function App() {
 
     const newSnake = [newHead, ...snake];
     if (checkAppleCollision(newHead)) {
-      setScore(score + appleScore!);
-      setSnakeSkin([appleScore!, ...snakeSkin]);
+      setScore(score + appleScore);
+      setSnakeSkin([appleScore, ...snakeSkin]);
 
-      if (appleScore! > 50) {
+      if (appleScore > 50) {
         setDelay(Math.floor(delay! * 0.95));
         console.log('fresh apple -', appleScore);
       } else {
@@ -148,8 +148,8 @@ function App() {
       createApple(newSnake);
     } else {
       newSnake.splice(-1);
-      if (appleScore! > 5) {
-        setAppleScore(appleScore! - 2);
+      if (appleScore > 5) {
+        setAppleScore(appleScore - 2);
       } else {
         createApple(newSnake);
       }
